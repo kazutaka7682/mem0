@@ -22,15 +22,13 @@ POSTGRES_USER = os.environ.get("POSTGRES_USER", "postgres")
 POSTGRES_PASSWORD = os.environ.get("POSTGRES_PASSWORD", "postgres")
 POSTGRES_COLLECTION_NAME = os.environ.get("POSTGRES_COLLECTION_NAME", "memories")
 
-NEO4J_URI = os.environ.get("NEO4J_URI", "bolt://neo4j:7687")
-NEO4J_USERNAME = os.environ.get("NEO4J_USERNAME", "neo4j")
-NEO4J_PASSWORD = os.environ.get("NEO4J_PASSWORD", "mem0graph")
+# Azure OpenAI Configuration
+AZURE_OPENAI_API_KEY = os.environ.get("AZURE_OPENAI_API_KEY")
+AZURE_OPENAI_ENDPOINT = os.environ.get("AZURE_OPENAI_ENDPOINT")
+AZURE_OPENAI_DEPLOYMENT = os.environ.get("AZURE_OPENAI_DEPLOYMENT", "gpt-4o")
+AZURE_OPENAI_EMBEDDING_DEPLOYMENT = os.environ.get("AZURE_OPENAI_EMBEDDING_DEPLOYMENT", "text-embedding-3-large")
+AZURE_API_VERSION = os.environ.get("AZURE_API_VERSION", "2024-12-01-preview")
 
-MEMGRAPH_URI = os.environ.get("MEMGRAPH_URI", "bolt://localhost:7687")
-MEMGRAPH_USERNAME = os.environ.get("MEMGRAPH_USERNAME", "memgraph")
-MEMGRAPH_PASSWORD = os.environ.get("MEMGRAPH_PASSWORD", "mem0graph")
-
-OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 HISTORY_DB_PATH = os.environ.get("HISTORY_DB_PATH", "/app/history/history.db")
 
 DEFAULT_CONFIG = {
@@ -44,14 +42,35 @@ DEFAULT_CONFIG = {
             "user": POSTGRES_USER,
             "password": POSTGRES_PASSWORD,
             "collection_name": POSTGRES_COLLECTION_NAME,
+            "embedding_model_dims": 3072,
         },
     },
-    "graph_store": {
-        "provider": "neo4j",
-        "config": {"url": NEO4J_URI, "username": NEO4J_USERNAME, "password": NEO4J_PASSWORD},
+    "llm": {
+        "provider": "azure_openai",
+        "config": {
+            "model": AZURE_OPENAI_DEPLOYMENT,
+            "temperature": 0.1,
+            "azure_kwargs": {
+                "api_key": AZURE_OPENAI_API_KEY,
+                "azure_deployment": AZURE_OPENAI_DEPLOYMENT,
+                "azure_endpoint": AZURE_OPENAI_ENDPOINT,
+                "api_version": AZURE_API_VERSION,
+            },
+        },
     },
-    "llm": {"provider": "openai", "config": {"api_key": OPENAI_API_KEY, "temperature": 0.2, "model": "gpt-4o"}},
-    "embedder": {"provider": "openai", "config": {"api_key": OPENAI_API_KEY, "model": "text-embedding-3-small"}},
+    "embedder": {
+        "provider": "azure_openai",
+        "config": {
+            "model": AZURE_OPENAI_EMBEDDING_DEPLOYMENT,
+            "embedding_dims": 3072,
+            "azure_kwargs": {
+                "api_key": AZURE_OPENAI_API_KEY,
+                "azure_deployment": AZURE_OPENAI_EMBEDDING_DEPLOYMENT,
+                "azure_endpoint": AZURE_OPENAI_ENDPOINT,
+                "api_version": AZURE_API_VERSION,
+            },
+        },
+    },
     "history_db_path": HISTORY_DB_PATH,
 }
 
